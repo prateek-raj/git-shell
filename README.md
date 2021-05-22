@@ -1,4 +1,4 @@
-# Custom Shell Usefull Commands
+# Custom Shell Usefull Command
 
 ## Purpose
 To convert build command into a single command.
