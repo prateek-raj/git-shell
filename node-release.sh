@@ -1,6 +1,5 @@
 #!/bin/bash
-# Author : Prateek Raj (r.prateek11@gmail.com)
-# Script follows here:
+# Author: Prateek Raj (r.prateek11@gmail.com)
 
 echo "Git Repository URL(git@github.com:xyz/abc.git): "
 read -r REPO
