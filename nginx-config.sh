@@ -5,7 +5,7 @@ DIRECTORIES=("/etc/nginx/sites-available" "/etc/nginx/conf.d")
 
 for directory in "${DIRECTORIES[@]}"; do
     if [ -d "${directory}" ]; then
-        SITES_DIRECTORY=directory
+        SITES_DIRECTORY=$directory
         break
     fi
 done
@@ -34,19 +34,30 @@ fi
 echo "Fetching tag $TAG 💪"
 DIRECTORY_NAME=${REPO##*/}
 DIRECTORY_NAME=${DIRECTORY_NAME%.*}
+echo "${DIRECTORY_NAME:?}/"*
 
-rm -rf "${DIRECTORY_NAME:?}/"*
-git clone --depth 1 --branch "$TAG" "$REPO"
-cd "${DIRECTORY_NAME:?}/" || exit 1
-
-mv sites-available $SITES_DIRECTORY
-
-if [ "$SITES_DIRECTORY" != "/etc/nginx/conf.d" ]; then
-    if [ ! -d "/etc/nginx/sites-enabled" ]; then
-        exit 1
-    fi
-
-    rm -rf "/etc/nginx/sites-enabled/*"
-    cp "sites-available/*" $SITES_DIRECTORY
-    link -vsfn "${SITES_DIRECTORY}/*" "/etc/nginx/sites-enabled/"
+if [ -d "${DIRECTORY_NAME}" ]; then
+    exit 1
 fi
+
+rm -rf "${DIRECTORY_NAME:?}/"
+git clone --depth 1 --branch "$TAG" "$REPO"
+
+echo "Moving conf files to ${SITES_DIRECTORY}"
+sudo mv "${DIRECTORY_NAME:?}/"sites-available/*.conf "${SITES_DIRECTORY}/"
+
+echo "Checking for symlink"
+if [ "$SITES_DIRECTORY" != "/etc/nginx/conf.d" ]; then
+    if [ -d "/etc/nginx/sites-enabled" ]; then
+        sudo rm -rf "/etc/nginx/sites-enabled/*.conf"
+        for FILE in "$SITES_DIRECTORY/"*.conf; do
+            sudo ln -vsfn "$FILE" "/etc/nginx/sites-enabled/"
+        done
+    fi
+fi
+
+echo "Removing tag files"
+rm -rf "${DIRECTORY_NAME:?}"
+
+echo "Done"
+exit 0
