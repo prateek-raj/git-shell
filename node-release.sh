@@ -24,20 +24,41 @@ echo "Fetching tag $TAG 💪"
 DIRECTORY_NAME=${REPO##*/}
 DIRECTORY_NAME=${DIRECTORY_NAME%.*}
 
-rm -rf "${DIRECTORY_NAME:?}/"*
+rm -rf "/tmp/${DIRECTORY_NAME:?}/"
+cd "/tmp" || exit
 git clone --depth 1 --branch "$TAG" "$REPO"
 cd "${DIRECTORY_NAME:?}/" || exit
-npm i
+npm i --production
 npm run build
+
+if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+    mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
+fi
 
 case $FRAMEWORK in
 "react")
+    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/build/" ]; then
+        sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/build/"
+    fi
+    mv "/tmp/${DIRECTORY_NAME:?}/build/"* "/var/www/html/${DIRECTORY_NAME:?}/build/"
+    rm -rf "/tmp/${DIRECTORY_NAME:?}/"*
     exit 1
     ;;
 "express")
+    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+        sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
+    fi
+    mv "/tmp/${DIRECTORY_NAME:?}/"* "/var/www/html/${DIRECTORY_NAME:?}/"
+    rm -rf "/tmp/${DIRECTORY_NAME:?}/"*
+
     npm run start:prod
     ;;
 "loopback")
+    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+        sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
+    fi
+    mv "/tmp/${DIRECTORY_NAME:?}/"* "/var/www/html/${DIRECTORY_NAME:?}/"
+    rm -rf "/tmp/${DIRECTORY_NAME:?}/"*
     npm run stop
     npm run start:prod
     ;;
