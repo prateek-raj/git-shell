@@ -31,13 +31,13 @@ cd "${DIRECTORY_NAME:?}/" || exit
 npm i --production
 npm run build
 
-if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+if [ ! -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
     mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
 fi
 
 case $FRAMEWORK in
 "react")
-    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/build/" ]; then
+    if [ ! -d "/var/www/html/${DIRECTORY_NAME:?}/build/" ]; then
         sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/build/"
     fi
     mv "/tmp/${DIRECTORY_NAME:?}/build/"* "/var/www/html/${DIRECTORY_NAME:?}/build/"
@@ -45,7 +45,7 @@ case $FRAMEWORK in
     exit 1
     ;;
 "express")
-    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+    if [ ! -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
         sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
     fi
     mv "/tmp/${DIRECTORY_NAME:?}/"* "/var/www/html/${DIRECTORY_NAME:?}/"
@@ -54,7 +54,7 @@ case $FRAMEWORK in
     npm run start:prod
     ;;
 "loopback")
-    if [ -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
+    if [ ! -d "/var/www/html/${DIRECTORY_NAME:?}/" ]; then
         sudo mkdir "/var/www/html/${DIRECTORY_NAME:?}/"
     fi
     mv "/tmp/${DIRECTORY_NAME:?}/"* "/var/www/html/${DIRECTORY_NAME:?}/"
